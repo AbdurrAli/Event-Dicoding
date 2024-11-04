@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Dicoding</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="Placeholder_Search">this is search fragment</string>
+
+    <!--Section Header String-->
+    <string name="label_ongoing_event">Event Berlangsung</string>
+    <string name="label_finished_event">Event Selesai</string>
+
+    <!--Navigation Menu String-->
+    <string name="label_menu_homepage">Home</string>
+    <string name="label_menu_search">Search</string>
+    <string name="label_menu_ongoing">Ongoing</string>
+    <string name="label_menu_finished">Finished</string>
+    <string name="content_desc">image_event</string>
+    <string name="placeholder_title_event_card">Cara Mencari dan Melamar Pekerjaan di Upwork - Ngooding Online Meetup</string>
+    <string name="placeholder_tanggal">2024-10-26 20:00:00</string>
+    <string name="owner_label">By : </string>
+    <string name="placeholder_owner">Dicoding</string>
+
+</resources>

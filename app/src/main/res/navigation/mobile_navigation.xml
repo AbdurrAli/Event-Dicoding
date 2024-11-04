@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.example.dicodingevent.ui.view.HomeFragment"
+        tools:layout="@layout/fragment_home">
+
+
+        <action
+            android:id="@+id/action_navigation_home_to_detailFinishedEventFragment"
+            app:destination="@id/detailFinishedEventFragment" />
+
+        <action
+            android:id="@+id/action_navigation_home_to_detailOngoingEventFragment"
+            app:destination="@id/detailOngoingEventFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_search"
+        android:name="com.example.dicodingevent.ui.view.SearchFragment"
+        tools:layout="@layout/fragment_search"/>
+
+    <fragment
+        android:id="@+id/navigation_upcoming"
+        android:name="com.example.dicodingevent.ui.view.OnGoingFragment"
+        tools:layout="@layout/fragment_on_going">
+        <action
+            android:id="@+id/action_navigation_upcoming_to_detailOngoingEventFragment"
+            app:destination="@id/detailOngoingEventFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_finished"
+        android:name="com.example.dicodingevent.ui.view.FinishedFragment"
+        tools:layout="@layout/fragment_finished">
+        <action
+            android:id="@+id/action_navigation_finished_to_detailFinishedEventFragment"
+            app:destination="@id/detailFinishedEventFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailFinishedEventFragment"
+        android:name="com.example.dicodingevent.ui.view.DetailFinishedEventFragment"
+        android:label="fragment_detail_finished_event"
+        tools:layout="@layout/fragment_detail_finished_event" />
+    <fragment
+        android:id="@+id/detailOngoingEventFragment"
+        android:name="com.example.dicodingevent.ui.view.DetailOngoingEventFragment"
+        android:label="fragment_detail_ongoing_event"
+        tools:layout="@layout/fragment_detail_ongoing_event" />
+
+</navigation>
