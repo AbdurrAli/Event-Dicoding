@@ -1,6 +1,6 @@
 package com.example.dicodingevent.adapter
 
-
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -10,65 +10,67 @@ import com.example.dicodingevent.databinding.CardVerticalBinding
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+// Adapter class for displaying finished events in a vertical list
 class ListEventFinishedAdapter(private val listener: OnFinishedItemClickListener) : RecyclerView.Adapter<ListEventFinishedAdapter.EventViewHolder>() {
 
-    private var eventList: List<ListEventsItem> = listOf()
+    private var eventList: List<ListEventsItem> = listOf() // List of finished events
 
+    // Interface for handling item click events
     interface OnFinishedItemClickListener {
         fun onFinishedItemClickListener(event: ListEventsItem)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
+        // Inflate the layout for each event item using the CardVerticalBinding
         val binding = CardVerticalBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return EventViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
+        // Bind data to the ViewHolder at the given position
         val event = eventList[position]
         holder.bind(event)
-
-
     }
 
     override fun getItemCount(): Int = eventList.size
 
+    // Update the event list and refresh the RecyclerView
+    @SuppressLint("NotifyDataSetChanged")
     fun submitList(events: List<ListEventsItem>) {
         eventList = events
         notifyDataSetChanged()
     }
 
+    // ViewHolder class for each event item
     inner class EventViewHolder(private val binding: CardVerticalBinding) : RecyclerView.ViewHolder(binding.root) {
 
+        // Bind event data to the UI components in the item layout
         fun bind(event: ListEventsItem) {
-            // Bind your data here
-            binding.titleEvent.text = event.name // Adjust according to your data structure
-            binding.tvOwner.text = event.ownerName // Adjust according to your data structure
-            binding.dateEvent.text = event.beginTime // Format the date as needed
+            binding.titleEvent.text = event.name // Set event name
+            binding.tvOwner.text = event.ownerName // Set event owner's name
+            binding.dateEvent.text = event.beginTime?.let { formatDateTime(it) } // Format and set event date
 
-            binding.dateEvent.text = event.beginTime?.let { formatDateTime(it) }
-
-            // Load image using Glide or another library
+            // Load the event logo image using Glide
             Glide.with(binding.imageView.context)
-                .load(event.imageLogo) // Adjust to the correct image URL
+                .load(event.imageLogo)
                 .into(binding.imageView)
 
-            binding.root.setOnClickListener{
+            // Set up click listener for the entire item
+            binding.root.setOnClickListener {
                 listener.onFinishedItemClickListener(event)
             }
-
         }
-
     }
 
-    // Function to format `beginTime`
+    // Helper function to format `beginTime` to a more readable format
     private fun formatDateTime(dateTime: String): String {
         return try {
             val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
             val outputFormat = SimpleDateFormat("EEE, dd MMM yyyy, HH:mm", Locale.getDefault())
             val date = inputFormat.parse(dateTime)
-            return date?.let { outputFormat.format(it) } ?: ""
+            date?.let { outputFormat.format(it) } ?: "" // Format if date parsing succeeds
         } catch (e: Exception) {
-            dateTime // fallback to original if parsing fails
+            dateTime // Return original string if parsing fails
         }
     }
 }

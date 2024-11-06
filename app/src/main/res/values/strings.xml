@@ -15,8 +15,23 @@
     <string name="label_menu_finished">Finished</string>
     <string name="content_desc">image_event</string>
     <string name="placeholder_title_event_card">Cara Mencari dan Melamar Pekerjaan di Upwork - Ngooding Online Meetup</string>
-    <string name="placeholder_tanggal">2024-10-26 20:00:00</string>
     <string name="owner_label">By : </string>
     <string name="placeholder_owner">Dicoding</string>
+    <string name="label_event_summary">Event Summary :</string>
+    <string name="placeholder_summary_event">IDCamp x Dicoding Live 2024 edisi ketiga ini akan kupas tuntas seputar Automation with UiPath.</string>
+    <string name="headline_detail_event">Detail Event</string>
+    <string name="label_regist_button">Daftar Event</string>
+    <string name="decoration_div">•</string>
+    <string name="content_desc_icon">icon detail kegiatan</string>
+    <string name="content_desc_img_event">foto poster acara dicoding</string>
+    <string name="headline_desc_event">Event Description</string>
+    <string name="string_tambahan_registrant">Sisa</string>
+    <string name="string_tambahan_registrant_2">peserta</string>
+    <string name="icon_tanggal">icon tanggal</string>
+    <string name="label_more">more</string>
+    <string name="headline_noconnection">Whoops, Koneksi Internet Anda Putus</string>
+    <string name="body_noconnection">Koneksi Internet Anda Putus, Silahkan periksa koneksi internet anda</string>
+    <string name="label_button_try_again">Coba Lagi</string>
+    <string name="img_network_state">img network state</string>
 
 </resources>

@@ -40,7 +40,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -59,4 +58,7 @@ dependencies {
     implementation(libs.converter.gson.v2110)
     implementation(libs.logging.interceptor)
     implementation (libs.circleimageview)
+    implementation (libs.jsoup)
+    implementation(libs.androidx.swiperefreshlayout)
+    implementation (libs.androidx.core.splashscreen)
 }

@@ -18,13 +18,29 @@
         <action
             android:id="@+id/action_navigation_home_to_detailOngoingEventFragment"
             app:destination="@id/detailOngoingEventFragment" />
+        <action
+            android:id="@+id/action_navigation_home_to_networkStatusFragment"
+            app:destination="@id/networkStatusFragment" />
+        <action
+            android:id="@+id/action_navigation_home_to_networkStatusFragment2"
+            app:destination="@id/networkStatusFragment" />
 
     </fragment>
 
     <fragment
         android:id="@+id/navigation_search"
         android:name="com.example.dicodingevent.ui.view.SearchFragment"
-        tools:layout="@layout/fragment_search"/>
+        tools:layout="@layout/fragment_search">
+        <action
+            android:id="@+id/action_navigation_search_to_detailFinishedEventFragment"
+            app:destination="@id/detailFinishedEventFragment" />
+        <action
+            android:id="@+id/action_navigation_search_to_detailOngoingEventFragment"
+            app:destination="@id/detailOngoingEventFragment" />
+        <action
+            android:id="@+id/action_navigation_search_to_networkStatusFragment"
+            app:destination="@id/networkStatusFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_upcoming"
@@ -33,6 +49,9 @@
         <action
             android:id="@+id/action_navigation_upcoming_to_detailOngoingEventFragment"
             app:destination="@id/detailOngoingEventFragment" />
+        <action
+            android:id="@+id/action_navigation_upcoming_to_networkStatusFragment"
+            app:destination="@id/networkStatusFragment" />
     </fragment>
 
     <fragment
@@ -42,16 +61,32 @@
         <action
             android:id="@+id/action_navigation_finished_to_detailFinishedEventFragment"
             app:destination="@id/detailFinishedEventFragment" />
+        <action
+            android:id="@+id/action_navigation_finished_to_networkStatusFragment"
+            app:destination="@id/networkStatusFragment" />
     </fragment>
     <fragment
         android:id="@+id/detailFinishedEventFragment"
         android:name="com.example.dicodingevent.ui.view.DetailFinishedEventFragment"
         android:label="fragment_detail_finished_event"
-        tools:layout="@layout/fragment_detail_finished_event" />
+        tools:layout="@layout/fragment_detail_finished_event" >
+        <action
+            android:id="@+id/action_detailFinishedEventFragment_to_networkStatusFragment"
+            app:destination="@id/networkStatusFragment" />
+    </fragment>
     <fragment
         android:id="@+id/detailOngoingEventFragment"
         android:name="com.example.dicodingevent.ui.view.DetailOngoingEventFragment"
         android:label="fragment_detail_ongoing_event"
-        tools:layout="@layout/fragment_detail_ongoing_event" />
+        tools:layout="@layout/fragment_detail_ongoing_event" >
+        <action
+            android:id="@+id/action_detailOngoingEventFragment_to_networkStatusFragment"
+            app:destination="@id/networkStatusFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/networkStatusFragment"
+        android:name="com.example.dicodingevent.ui.view.NetworkStatusFragment"
+        android:label="fragment_network_status"
+        tools:layout="@layout/fragment_network_status" />
 
 </navigation>

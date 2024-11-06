@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
+    android:layout_marginBottom="12dp"
     android:id="@+id/vertical_card"
     android:layout_marginHorizontal="18dp"
     app:cardElevation="0dp"
@@ -75,6 +75,7 @@
             app:layout_constraintTop_toTopOf="@+id/imageView" />
 
         <ImageView
+            android:contentDescription="@string/content_desc_img_event"
             android:id="@+id/icon_date"
             android:layout_width="20dp"
             android:layout_height="20dp"
@@ -91,7 +92,7 @@
             android:layout_marginTop="2dp"
             android:layout_marginBottom="2dp"
             android:fontFamily="@font/poppins_medium"
-            android:text="@string/placeholder_tanggal"
+            android:text=""
             android:textColor="@color/neutral500"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="@+id/icon_date"

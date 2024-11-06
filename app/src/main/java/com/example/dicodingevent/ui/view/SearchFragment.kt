@@ -5,58 +5,123 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.dicodingevent.R
+import android.widget.SearchView
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.dicodingevent.adapter.ListEventFinishedAdapter
+import com.example.dicodingevent.adapter.ListEventOngoingAdapterVertical
+import com.example.dicodingevent.data.response.ListEventsItem
+import com.example.dicodingevent.databinding.FragmentSearchBinding
+import com.example.dicodingevent.ui.viewmodel.NetworkStatusViewModel
+import com.example.dicodingevent.ui.viewmodel.SearchViewModel
 
-/**
- * A simple [Fragment] subclass.
- * Use the [SearchFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+class SearchFragment : Fragment(), ListEventFinishedAdapter.OnFinishedItemClickListener,
+    ListEventOngoingAdapterVertical.OnOngoingItemClickListener {
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+    // Nullable binding to prevent memory leaks
+    private var _binding: FragmentSearchBinding? = null
+    private val binding get() = _binding!!
 
+    // ViewModel for managing search functionality
+    private val searchViewModel: SearchViewModel by viewModels()
+    private lateinit var finishedEventAdapter: ListEventFinishedAdapter
 
-class SearchFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    // ViewModel for monitoring network status
+    private val networkStatusViewModel: NetworkStatusViewModel by viewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        // Inflate the layout for this fragment using view binding
+        _binding = FragmentSearchBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Observe network connectivity and navigate to NetworkStatusFragment if offline
+        networkStatusViewModel.isConnected.observe(viewLifecycleOwner) { isConnected ->
+            if (!isConnected) {
+                val actionNetworkStatus =
+                    SearchFragmentDirections.actionNavigationSearchToNetworkStatusFragment()
+                findNavController().navigate(actionNetworkStatus)
+            }
+        }
+
+        // Initialize the adapter for finished events
+        finishedEventAdapter = ListEventFinishedAdapter(this)
+
+        // Set up RecyclerView for displaying all events in vertical layout
+        binding.rvAllEvent.apply {
+            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            adapter = finishedEventAdapter
+        }
+
+        // Set up search functionality for filtering events
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                // Trigger search in ViewModel with new text input
+                searchViewModel.searchEvents(newText ?: "")
+                return true
+            }
+        })
+
+        // Observe filtered events and update the adapter list when data changes
+        searchViewModel.filteredEvents.observe(viewLifecycleOwner) { events ->
+            finishedEventAdapter.submitList(events)
+        }
+
+        // Observe all events data and display it in the adapter
+        searchViewModel.listAllEvents.observe(viewLifecycleOwner) { events ->
+            finishedEventAdapter.submitList(events)
+        }
+
+        // Show or hide progress bar based on loading state
+        searchViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
+
+        // Observe errors and handle them if they occur
+        searchViewModel.isError.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                // Display error message or handle the error as needed
+                // binding.errorTextView.text = it
+            }
+        }
+
+        // Set up swipe-to-refresh functionality to reload data
+        binding.swipeRefresh.setOnRefreshListener {
+            searchViewModel.refreshData()
+            binding.swipeRefresh.isRefreshing = false
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Clear binding reference to prevent memory leaks
+        _binding = null
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SearchFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SearchFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    // Handle click event for finished events and navigate to the details page
+    override fun onFinishedItemClickListener(event: ListEventsItem) {
+        val actionFinished =
+            SearchFragmentDirections.actionNavigationSearchToDetailFinishedEventFragment()
+        findNavController().navigate(actionFinished)
+    }
+
+    // Handle click event for ongoing events and navigate to the details page
+    override fun onOngoingItemClickListener(event: ListEventsItem) {
+        val actionOngoing =
+            SearchFragmentDirections.actionNavigationSearchToDetailOngoingEventFragment()
+        findNavController().navigate(actionOngoing)
     }
 }

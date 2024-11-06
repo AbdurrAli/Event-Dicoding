@@ -1,6 +1,7 @@
 package com.example.dicodingevent.ui.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,8 +17,9 @@ import com.example.dicodingevent.adapter.ListEventFinishedAdapter
 import com.example.dicodingevent.adapter.ListEventOngoingAdapterHorizontal
 import com.example.dicodingevent.data.response.ListEventsItem
 import com.example.dicodingevent.ui.viewmodel.HomeViewModel
+import com.example.dicodingevent.ui.viewmodel.NetworkStatusViewModel
 
-class HomeFragment : Fragment(), ListEventFinishedAdapter.OnFinishedItemClickListener,ListEventOngoingAdapterHorizontal.OnOngoingItemClickListener {
+class HomeFragment : Fragment(), ListEventFinishedAdapter.OnFinishedItemClickListener, ListEventOngoingAdapterHorizontal.OnOngoingItemClickListener {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
@@ -25,6 +27,8 @@ class HomeFragment : Fragment(), ListEventFinishedAdapter.OnFinishedItemClickLis
     private val homeViewModel: HomeViewModel by viewModels()
     private lateinit var ongoingEventAdapter: ListEventOngoingAdapterHorizontal
     private lateinit var finishedEventAdapter: ListEventFinishedAdapter
+
+    private val networkStatusViewModel: NetworkStatusViewModel by viewModels()
 
     private lateinit var imageProfile: CircleImageView
     private var imageProfileUrl = "https://w.wallhaven.cc/full/zy/wallhaven-zy759g.png"
@@ -35,40 +39,59 @@ class HomeFragment : Fragment(), ListEventFinishedAdapter.OnFinishedItemClickLis
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val root: View = binding.root
+        return binding.root
+    }
 
-        // Initialize adapters
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Observing network connection status
+        networkStatusViewModel.isConnected.observe(viewLifecycleOwner) { isConnected ->
+            Log.d("NetworkStatus", "Is Connected: $isConnected")
+            if (!isConnected) {
+                // Navigate to NetworkStatusFragment if not connected
+                val actionNetworkStatus = HomeFragmentDirections.actionNavigationHomeToNetworkStatusFragment()
+                findNavController().navigate(actionNetworkStatus)
+            }
+
+            if (isConnected) {
+                // Refresh data if connected to the internet
+                homeViewModel.refreshData()
+            }
+        }
+
+        // Initialize adapters for ongoing and finished events
         ongoingEventAdapter = ListEventOngoingAdapterHorizontal(this)
         finishedEventAdapter = ListEventFinishedAdapter(this)
 
-        // Set up RecyclerView for ongoing events (horizontal)
+        // Set up RecyclerView for ongoing events with horizontal layout
         binding.rvHorizontalHome.apply {
             layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
             adapter = ongoingEventAdapter
         }
 
-        // Set up RecyclerView for finished events (vertical)
+        // Set up RecyclerView for finished events with vertical layout
         binding.rvVerticalHome.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = finishedEventAdapter
         }
 
-        // Observe ongoing events data
+        // Observe list of ongoing events and submit it to the adapter
         homeViewModel.listOngoingEvents.observe(viewLifecycleOwner) { events ->
             ongoingEventAdapter.submitList(events)
         }
 
-        // Observe finished events data
+        // Observe list of finished events and submit it to the adapter
         homeViewModel.listFinishedEvents.observe(viewLifecycleOwner) { events ->
             finishedEventAdapter.submitList(events)
         }
 
-        // Observe loading state
-        homeViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+        // Observe loading state to show or hide progress bar
+        homeViewModel.isLoadingOngoing.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
-        // Observe errors
+        // Observe errors and handle as necessary
         homeViewModel.isError.observe(viewLifecycleOwner) { error ->
             error?.let {
                 // Display error message or take necessary action
@@ -76,12 +99,17 @@ class HomeFragment : Fragment(), ListEventFinishedAdapter.OnFinishedItemClickLis
             }
         }
 
+        // SwipeRefresh layout to refresh data on swipe down
+        binding.swipeRefresh.setOnRefreshListener {
+            homeViewModel.refreshData()
+            binding.swipeRefresh.isRefreshing = false
+        }
+
+        // Load and set profile image using Glide
         imageProfile = binding.ivProfile
         Glide.with(this)
             .load(imageProfileUrl)
             .into(imageProfile)
-
-        return root
     }
 
     override fun onDestroyView() {
@@ -89,15 +117,20 @@ class HomeFragment : Fragment(), ListEventFinishedAdapter.OnFinishedItemClickLis
         _binding = null
     }
 
+    // Navigate to DetailFinishedEventFragment when a finished event item is clicked
     override fun onFinishedItemClickListener(event: ListEventsItem) {
-        //TODO("Not yet implemented")
         val actionFinishedDetail = HomeFragmentDirections.actionNavigationHomeToDetailFinishedEventFragment()
         findNavController().navigate(actionFinishedDetail)
     }
 
+    // Navigate to DetailOngoingEventFragment when an ongoing event item is clicked
     override fun onOngoingItemClickListener(event: ListEventsItem) {
-        //TODO("Not yet implemented")
         val actionOngoing = HomeFragmentDirections.actionNavigationHomeToDetailOngoingEventFragment()
         findNavController().navigate(actionOngoing)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 }
