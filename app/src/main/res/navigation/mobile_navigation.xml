@@ -73,6 +73,9 @@
         <action
             android:id="@+id/action_detailFinishedEventFragment_to_networkStatusFragment"
             app:destination="@id/networkStatusFragment" />
+        <argument
+            android:name="eventId"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/detailOngoingEventFragment"
@@ -82,6 +85,9 @@
         <action
             android:id="@+id/action_detailOngoingEventFragment_to_networkStatusFragment"
             app:destination="@id/networkStatusFragment" />
+        <argument
+            android:name="eventId"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/networkStatusFragment"

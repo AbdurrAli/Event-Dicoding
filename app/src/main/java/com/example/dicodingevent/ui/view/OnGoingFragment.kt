@@ -106,7 +106,7 @@ class OnGoingFragment : Fragment(), ListEventOngoingAdapterVertical.OnOngoingIte
 
     // Handle item click for ongoing event and navigate to event details
     override fun onOngoingItemClickListener(event: ListEventsItem) {
-        val actionOngoing = OnGoingFragmentDirections.actionNavigationUpcomingToDetailOngoingEventFragment()
+        val actionOngoing = OnGoingFragmentDirections.actionNavigationUpcomingToDetailOngoingEventFragment(event.id ?: 0)
         findNavController().navigate(actionOngoing)
     }
 }

@@ -3,17 +3,14 @@ package com.example.dicodingevent.ui.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.dicodingevent.data.retrofit.ApiConfig
 import com.example.dicodingevent.data.response.EventResponse
+import com.example.dicodingevent.data.retrofit.ApiConfig
 import com.example.dicodingevent.data.response.ListEventsItem
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class DetailFinishedEventViewModel : ViewModel() {
-
-    // LiveData for the list of finished events
-    private val _listFinishedEvents = MutableLiveData<List<ListEventsItem>>()
 
     // LiveData for loading status
     private val _isLoading = MutableLiveData<Boolean>()
@@ -27,50 +24,65 @@ class DetailFinishedEventViewModel : ViewModel() {
     private val _selectedEvent = MutableLiveData<ListEventsItem?>()
     val selectedEvent: LiveData<ListEventsItem?> = _selectedEvent
 
+    // LiveData for list of events
+    private val _eventList = MutableLiveData<List<ListEventsItem?>?>()
+    val eventList: LiveData<List<ListEventsItem?>?> = _eventList
+
     // LiveData for remaining quota of selected event
     private val _remainingQuota = MutableLiveData<Int>()
     val remainingQuota: LiveData<Int> = _remainingQuota
 
-    // Initialize by loading the list of finished events
-    init {
-        getListFinishedEvents()
-    }
-
-    // Function to refresh data by re-fetching the list of finished events
-    fun refreshData() {
-        getListFinishedEvents()
-    }
-
-    // Function to retrieve list of finished events from the API
-    private fun getListFinishedEvents() {
+    // Function to get details of a selected event by ID
+    fun getEventDetail(id: Int) {
         _isLoading.value = true
         _isError.value = null
 
-        // Make API call with 'active = 0' to get finished events
-        val client = ApiConfig.getApiService().getEvent(active = 0)
-        client.enqueue(object : Callback<EventResponse> {
+        // Panggil API untuk mengambil detail acara
+        ApiConfig.getApiService().getEventDetail(id).enqueue(object : Callback<EventResponse> {
             override fun onResponse(call: Call<EventResponse>, response: Response<EventResponse>) {
                 _isLoading.value = false
                 if (response.isSuccessful) {
-                    response.body()?.listEvents?.let { events ->
-                        _listFinishedEvents.value = events.filterNotNull() // Populate with non-null events
-
-                        // Set the first event as selected if no event is selected yet
-                        if (_selectedEvent.value == null) {
-                            _selectedEvent.value = _listFinishedEvents.value?.firstOrNull()
-                        }
-
-                        calculateRemainingQuota() // Calculate remaining quota for the selected event
+                    val eventResponse = response.body()
+                    eventResponse?.let {
+                        // Mengambil event tunggal dari response
+                        _selectedEvent.value = it.event
+                        calculateRemainingQuota() // Recalculate remaining quota when new event detail is fetched
                     }
                 } else {
-                    // Set error message if the response is unsuccessful
-                    _isError.value = "Error: ${response.code()} ${response.message()}"
+                    _isError.value = "Failed to retrieve event details"
                 }
             }
 
             override fun onFailure(call: Call<EventResponse>, t: Throwable) {
                 _isLoading.value = false
-                _isError.value = t.message // Set error message in case of failure
+                _isError.value = t.message
+            }
+        })
+    }
+
+    // Function to fetch list of events
+    fun fetchEvents() {
+        _isLoading.value = true
+        _isError.value = null
+
+        // Panggil API untuk mengambil daftar acara
+        ApiConfig.getApiService().getEvent().enqueue(object : Callback<EventResponse> {
+            override fun onResponse(call: Call<EventResponse>, response: Response<EventResponse>) {
+                _isLoading.value = false
+                if (response.isSuccessful) {
+                    val eventResponse = response.body()
+                    eventResponse?.let {
+                        // Menyimpan daftar acara dari response
+                        _eventList.value = it.listEvents
+                    }
+                } else {
+                    _isError.value = "Failed to retrieve events"
+                }
+            }
+
+            override fun onFailure(call: Call<EventResponse>, t: Throwable) {
+                _isLoading.value = false
+                _isError.value = t.message
             }
         })
     }
@@ -84,11 +96,5 @@ class DetailFinishedEventViewModel : ViewModel() {
             _remainingQuota.value = quota - registrants // Calculate remaining quota
         }
     }
-
-    // Function to set a specific event as selected
-    fun setSelectedEvent(event: ListEventsItem?) {
-        _selectedEvent.value = event
-        // Recalculate remaining quota when a new event is selected
-        calculateRemainingQuota()
-    }
 }
+

@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.example.dicodingevent.databinding.FragmentDetailOngoingEventBinding
 import com.example.dicodingevent.ui.viewmodel.DetailOngoingEventViewModel
@@ -28,6 +29,8 @@ class DetailOngoingEventFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val networkStatusViewModel: NetworkStatusViewModel by viewModels()
+
+    private val args: DetailOngoingEventFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,6 +49,10 @@ class DetailOngoingEventFragment : Fragment() {
         // Set up the toolbar
         setupToolbar()
 
+        val eventId = args.eventId
+
+        viewModel.getEventDetail(eventId)
+
         networkStatusViewModel.isConnected.observe(viewLifecycleOwner) { isConnected ->
             Log.d("NetworkStatus", "Is Connected: $isConnected")
             if (!isConnected) {
@@ -57,6 +64,7 @@ class DetailOngoingEventFragment : Fragment() {
         // Observe LiveData for selected event details
         viewModel.selectedEvent.observe(viewLifecycleOwner) { event ->
             event?.let { selectedEvent ->
+                Log.d("API Response", "Event Name: ${event.name}, City: ${event.cityName}")
                 // Bind detail event to UI
                 binding.tvEventTitle.text = selectedEvent.name ?: "Nama tidak tersedia"
                 binding.tvPlace.text = selectedEvent.cityName ?: "Lokasi tidak tersedia"

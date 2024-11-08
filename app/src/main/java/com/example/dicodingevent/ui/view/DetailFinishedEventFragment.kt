@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.example.dicodingevent.databinding.FragmentDetailFinishedEventBinding
 import com.example.dicodingevent.ui.viewmodel.DetailFinishedEventViewModel
@@ -30,6 +31,8 @@ class DetailFinishedEventFragment : Fragment() {
 
     private val networkStatusViewModel: NetworkStatusViewModel by viewModels()
 
+    private val args: DetailFinishedEventFragmentArgs by navArgs()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -44,8 +47,14 @@ class DetailFinishedEventFragment : Fragment() {
         // Initialize ViewModel
         viewModel = ViewModelProvider(this)[DetailFinishedEventViewModel::class.java]
 
+
+        val eventId = args.eventId
+
         // Set up the toolbar
         setupToolbar()
+
+        // Get event ID from arguments
+        viewModel.getEventDetail(eventId)
 
         // Observe network status
         networkStatusViewModel.isConnected.observe(viewLifecycleOwner) { isConnected ->
@@ -58,20 +67,21 @@ class DetailFinishedEventFragment : Fragment() {
 
         // Observe LiveData for selected event details
         viewModel.selectedEvent.observe(viewLifecycleOwner) { event ->
-            event?.let {
+            event?.let { selectedEvent ->
+                Log.d("API Response", "Event Name: ${event.name}, City: ${event.cityName}")
                 // Bind event details to UI
-                binding.tvEventTitle.text = it.name ?: "Nama tidak tersedia"
-                binding.tvPlace.text = it.cityName ?: "Lokasi tidak tersedia"
-                binding.tvEventCategory.text = it.category ?: "Kategori tidak tersedia"
-                binding.tvEventProvider.text = it.ownerName ?: "Penyedia tidak tersedia"
-                binding.tvContentEventSummary.text = it.summary ?: "Ringkasan tidak tersedia"
+                binding.tvEventTitle.text = selectedEvent.name ?: "Nama tidak tersedia"
+                binding.tvPlace.text = selectedEvent.cityName ?: "Lokasi tidak tersedia"
+                binding.tvEventCategory.text = selectedEvent.category ?: "Kategori tidak tersedia"
+                binding.tvEventProvider.text = selectedEvent.ownerName ?: "Penyedia tidak tersedia"
+                binding.tvContentEventSummary.text = selectedEvent.summary ?: "Ringkasan tidak tersedia"
 
                 // Format date and time
-                binding.tvDate.text = formatDate(it.beginTime)
+                binding.tvDate.text = formatDate(selectedEvent.beginTime)
 
                 // Load image with placeholder using Glide
                 Glide.with(this)
-                    .load(it.imageLogo)
+                    .load(selectedEvent.imageLogo)
                     .into(binding.ivImgEvent)
 
                 binding.btnRegister.setOnClickListener {
@@ -86,7 +96,7 @@ class DetailFinishedEventFragment : Fragment() {
                 }
 
                 // Parse HTML content for description using Jsoup
-                val htmlContent = it.description ?: "Deskripsi tidak tersedia"
+                val htmlContent = selectedEvent.description ?: "Deskripsi tidak tersedia"
                 val document = Jsoup.parse(htmlContent)
                 val textContent = document.body().text()
                 val descriptionText =
@@ -95,11 +105,11 @@ class DetailFinishedEventFragment : Fragment() {
             }
         }
 
-        // Swipe refresh functionality
-        binding.swipeRefresh.setOnRefreshListener {
-            viewModel.refreshData()
-            binding.swipeRefresh.isRefreshing = false
-        }
+//        // Swipe refresh functionality
+//        binding.swipeRefresh.setOnRefreshListener {
+//            viewModel.refreshData()
+//            binding.swipeRefresh.isRefreshing = false
+//        }
 
         // Observe remaining quota
         viewModel.remainingQuota.observe(viewLifecycleOwner) {

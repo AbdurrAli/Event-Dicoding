@@ -98,7 +98,7 @@ class FinishedFragment : Fragment(), ListEventFinishedAdapter.OnFinishedItemClic
     override fun onFinishedItemClickListener(event: ListEventsItem) {
         // Arahkan ke fragment detail dengan SafeArgs
         val actionFinished = FinishedFragmentDirections
-            .actionNavigationFinishedToDetailFinishedEventFragment()
+            .actionNavigationFinishedToDetailFinishedEventFragment(event.id ?: 0)
         findNavController().navigate(actionFinished)
     }
 }

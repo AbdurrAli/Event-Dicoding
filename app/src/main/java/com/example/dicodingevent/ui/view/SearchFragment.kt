@@ -114,14 +114,14 @@ class SearchFragment : Fragment(), ListEventFinishedAdapter.OnFinishedItemClickL
     // Handle click event for finished events and navigate to the details page
     override fun onFinishedItemClickListener(event: ListEventsItem) {
         val actionFinished =
-            SearchFragmentDirections.actionNavigationSearchToDetailFinishedEventFragment()
+            SearchFragmentDirections.actionNavigationSearchToDetailFinishedEventFragment(event.id ?: 0)
         findNavController().navigate(actionFinished)
     }
 
     // Handle click event for ongoing events and navigate to the details page
     override fun onOngoingItemClickListener(event: ListEventsItem) {
         val actionOngoing =
-            SearchFragmentDirections.actionNavigationSearchToDetailOngoingEventFragment()
+            SearchFragmentDirections.actionNavigationSearchToDetailOngoingEventFragment(event.id ?: 0)
         findNavController().navigate(actionOngoing)
     }
 }

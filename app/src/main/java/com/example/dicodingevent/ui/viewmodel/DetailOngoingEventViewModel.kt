@@ -12,13 +12,13 @@ import retrofit2.Response
 
 class DetailOngoingEventViewModel : ViewModel() {
 
-    // LiveData for the list of ongoing events
-    private val _listOngoingEvents = MutableLiveData<List<ListEventsItem>>()
-    val listOngoingEvents: LiveData<List<ListEventsItem>> = _listOngoingEvents
-
     // LiveData for loading status
-    private val _isLoading = MutableLiveData<Boolean>()
+    private var _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
+
+    // LiveData for list of events
+    private val _eventList = MutableLiveData<List<ListEventsItem?>?>()
+    val eventList: LiveData<List<ListEventsItem?>?> = _eventList
 
     // LiveData for error messages
     private val _isError = MutableLiveData<String?>()
@@ -32,41 +32,51 @@ class DetailOngoingEventViewModel : ViewModel() {
     private val _remainingQuota = MutableLiveData<Int>()
     val remainingQuota: LiveData<Int> = _remainingQuota
 
-    // Initialize by loading the list of ongoing events
-    init {
-        getListOngoingEvents()
-    }
-
     // Function to retrieve list of ongoing events from the API
-    private fun getListOngoingEvents() {
+     fun getEventDetail(id: Int) {
         _isLoading.value = true
         _isError.value = null
 
         // Make API call with 'active = 1' to get ongoing events
-        val client = ApiConfig.getApiService().getEvent(active = 1)
-        client.enqueue(object : Callback<EventResponse> {
+        ApiConfig.getApiService().getEventDetail(id).enqueue(object : Callback<EventResponse> {
             override fun onResponse(call: Call<EventResponse>, response: Response<EventResponse>) {
                 _isLoading.value = false
                 if (response.isSuccessful) {
-                    response.body()?.listEvents?.let { events ->
-                        _listOngoingEvents.value = events.filterNotNull() // Populate with non-null events
-
-                        // Set the first event as selected if no event is selected yet
-                        if (_selectedEvent.value == null) {
-                            _selectedEvent.value = _listOngoingEvents.value?.firstOrNull()
-                        }
-
-                        calculateRemainingQuota() // Calculate remaining quota for the selected event
+                    val eventResponse = response.body()
+                    eventResponse?.let {
+                        _selectedEvent.value = it.event
+                        calculateRemainingQuota() // Recalculate remaining quota when new event detail is fetched
                     }
-                } else {
-                    // Set error message if the response is unsuccessful
-                    _isError.value = "Error: ${response.code()} ${response.message()}"
                 }
             }
 
             override fun onFailure(call: Call<EventResponse>, t: Throwable) {
                 _isLoading.value = false
-                _isError.value = t.message // Set error message in case of failure
+                _isError.value = t.message
+            }
+        })
+    }
+
+    fun fetchEvents() {
+        _isLoading.value = true
+        _isError.value = null
+
+        ApiConfig.getApiService().getEvent().enqueue(object : Callback<EventResponse> {
+            override fun onResponse(call: Call<EventResponse>, response: Response<EventResponse>) {
+                _isLoading.value = false
+                if (response.isSuccessful) {
+                    val eventResponse = response.body()
+                    eventResponse?.let {
+                        _eventList.value = it.listEvents
+                    }
+                } else {
+                    _isError.value = "Failed to retrieve events"
+                }
+            }
+
+            override fun onFailure(call: Call<EventResponse>, t: Throwable) {
+                _isLoading.value = false
+                _isError.value = t.message
             }
         })
     }

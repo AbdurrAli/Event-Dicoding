@@ -76,6 +76,11 @@ class HomeFragment : Fragment(), ListEventFinishedAdapter.OnFinishedItemClickLis
             adapter = finishedEventAdapter
         }
 
+        // Observe loading state to show or hide progress bar
+        homeViewModel.isLoadingOngoing.observe(viewLifecycleOwner) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
+
         // Observe list of ongoing events and submit it to the adapter
         homeViewModel.listOngoingEvents.observe(viewLifecycleOwner) { events ->
             ongoingEventAdapter.submitList(events)
@@ -84,11 +89,6 @@ class HomeFragment : Fragment(), ListEventFinishedAdapter.OnFinishedItemClickLis
         // Observe list of finished events and submit it to the adapter
         homeViewModel.listFinishedEvents.observe(viewLifecycleOwner) { events ->
             finishedEventAdapter.submitList(events)
-        }
-
-        // Observe loading state to show or hide progress bar
-        homeViewModel.isLoadingOngoing.observe(viewLifecycleOwner) { isLoading ->
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
         // Observe errors and handle as necessary
@@ -119,13 +119,13 @@ class HomeFragment : Fragment(), ListEventFinishedAdapter.OnFinishedItemClickLis
 
     // Navigate to DetailFinishedEventFragment when a finished event item is clicked
     override fun onFinishedItemClickListener(event: ListEventsItem) {
-        val actionFinishedDetail = HomeFragmentDirections.actionNavigationHomeToDetailFinishedEventFragment()
+        val actionFinishedDetail = HomeFragmentDirections.actionNavigationHomeToDetailFinishedEventFragment(event.id ?: 0)
         findNavController().navigate(actionFinishedDetail)
     }
 
     // Navigate to DetailOngoingEventFragment when an ongoing event item is clicked
     override fun onOngoingItemClickListener(event: ListEventsItem) {
-        val actionOngoing = HomeFragmentDirections.actionNavigationHomeToDetailOngoingEventFragment()
+        val actionOngoing = HomeFragmentDirections.actionNavigationHomeToDetailOngoingEventFragment(event.id ?: 0)
         findNavController().navigate(actionOngoing)
     }
 
